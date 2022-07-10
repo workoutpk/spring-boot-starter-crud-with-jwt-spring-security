@@ -1,12 +1,13 @@
 package pk.first.application.pkspringapplication.controller;
 
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pk.first.application.pkspringapplication.exception.ResourceNotFoundException;
+import pk.first.application.pkspringapplication.dto.SpaceDto;
 import pk.first.application.pkspringapplication.model.Space;
 import pk.first.application.pkspringapplication.repository.SpaceRepository;
 import pk.first.application.pkspringapplication.response.ResponseHandler;
@@ -69,15 +70,7 @@ public class AlienController {
         }
 
     }
-    @GetMapping("/space/{universeName}")
-    public ResponseEntity<Space> getByUniverseName(@PathVariable("universeName") String universeName){
-        try{
-                /* Its part of query hql*/
-            return new ResponseEntity<>(HttpStatus.OK);
-        }catch (Exception e){
-            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+
 
     @GetMapping("/allSpace")
     public ResponseEntity<List<Space>> allSpace(){
@@ -144,7 +137,15 @@ public class AlienController {
             return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    /* With query HQL */
+    @GetMapping("/space/{universeName}")
+    public ResponseEntity<List<Space>> getByUniverseName(@PathVariable("universeName") String universeName){
+        try{
+            return ResponseEntity.status(HttpStatus.OK).body(spaceService.findByUniverseName(universeName));
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     /*Example  with response handler */
     @GetMapping(value = "/responseAllSpace")
     public ResponseEntity<Object> Get() {
@@ -155,4 +156,29 @@ public class AlienController {
             return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.MULTI_STATUS, null);
         }
     }
+    @PostMapping("universeDetails")
+    public ResponseEntity<Object> universeDetails(@RequestParam(name = "name") String name){
+        try {
+            List<Space> universeDetails = spaceRepository.findByUniverseName(name);
+            return ResponseHandler.generateResponse("Find  universe details here",HttpStatus.OK,universeDetails);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+    @PostMapping("universeDetailsByName")
+    public ResponseEntity<Object> universeDetailsByName(@RequestBody ObjectNode objectNode ){
+        try {
+            // And then you can call parameters from objectNode
+            String strOne = objectNode.get("uname").asText();
+
+            List<Space> universeDetails = spaceRepository.findByUniverseName(strOne);
+            return ResponseHandler.generateResponse("Find  universe details here",HttpStatus.OK,universeDetails);
+        }catch (Exception e){
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+
+
 }

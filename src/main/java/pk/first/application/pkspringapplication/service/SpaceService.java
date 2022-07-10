@@ -25,4 +25,10 @@ public class SpaceService {
     public Optional<Space> spaceById(Long id){
         return spaceRepository.findById(id);
     }
+
+    public List<Space> findByUniverseName(String string){
+        List<Space> listOfUniverse = new ArrayList<>();
+        spaceRepository.findByUniverseName(string).forEach(listOfUniverse::add);
+        return listOfUniverse;
+    }
 }
